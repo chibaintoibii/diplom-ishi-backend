@@ -1,4 +1,4 @@
-import {Body, Controller, Get, Post, Query, UseGuards} from "@nestjs/common";
+import {Body, Controller, Get, Param, Post, Query, UseGuards} from "@nestjs/common";
 import {JwtAuthGuard} from "../auth/jwt-auth.guard";
 import {RolesGuard} from "../auth/roles/roles.guard";
 import {Roles} from "../auth/roles/roles.decorator";
@@ -41,6 +41,11 @@ export class StudentsController {
       ...filter,
       role: Role.Student
     })
+  }
+
+  @Get(':id/gpa')
+  getStudentGPA(@Param('id') id: string) {
+
   }
 
 

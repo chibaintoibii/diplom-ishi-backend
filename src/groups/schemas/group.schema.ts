@@ -1,6 +1,6 @@
 import {Prop, Schema, SchemaFactory} from "@nestjs/mongoose";
 import {Types, Document} from "mongoose";
-import {User} from "../../users/schemas/user.schema";
+import {User} from "src/users/schemas/user.schema";
 
 export type GroupDocument = Group & Document;
 
@@ -30,11 +30,13 @@ export class Group {
 
   @Prop({
     type: Date,
+    required: true
   })
   startDate: Date;
 
   @Prop({
-    type: Date
+    type: Date,
+    required: true
   })
   endDate: Date;
 }

@@ -8,8 +8,9 @@ import {UsersModule} from "../users/users.module";
 @Module({
   controllers: [GroupsController],
   providers: [GroupsService],
-  imports: [MongooseModule.forFeature([{name: Group.name, schema: GroupSchema}]),
-    forwardRef(() => UsersModule)
+  imports: [
+    MongooseModule.forFeature([{name: Group.name, schema: GroupSchema}]),
+    forwardRef(() => UsersModule),
   ],
   exports: [GroupsService]
 })

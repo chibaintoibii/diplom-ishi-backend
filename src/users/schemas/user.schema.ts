@@ -51,6 +51,11 @@ export class User {
   role: Role;
 
   @Prop({
+    type: Number,
+  })
+  gpa: number
+
+  @Prop({
     default: 1,
     type: Number
   })

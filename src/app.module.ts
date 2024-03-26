@@ -7,7 +7,10 @@ import {AuthModule} from './auth/auth.module';
 import {UsersModule} from './users/users.module';
 import {User, UserSchema} from "./users/schemas/user.schema";
 import {AuthService} from "./auth/auth.service";
-import { GroupsModule } from './groups/groups.module';
+import {GroupsModule} from './groups/groups.module';
+import {ReportsModule} from './reports/reports.module';
+import {Report, ReportSchema} from "./reports/schemas/report.schema";
+import {Group, GroupSchema} from "./groups/schemas/group.schema";
 
 @Module({
   imports: [
@@ -17,10 +20,13 @@ import { GroupsModule } from './groups/groups.module';
     }),
     MongooseModule.forRoot(process.env.DATABASE_URI),
     MongooseModule.forFeature([
-      {name: User.name, schema: UserSchema}
+      {name: User.name, schema: UserSchema},
+      {name: Report.name, schema: ReportSchema},
+      {name: Group.name, schema: GroupSchema},
     ]),
     AuthModule,
     GroupsModule,
+    ReportsModule,
   ],
   controllers: [],
   providers: [AuthService, JwtService],

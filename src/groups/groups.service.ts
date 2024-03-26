@@ -18,7 +18,11 @@ export class GroupsService {
 
   async create(dto: CreateGroupDto) {
     const teacher = await this.usersService.findById(dto.teacherId);
-    if (!teacher || teacher?.role !== Role.Teacher) throw new NotFoundException('teacher not found');
+    if (!teacher || teacher?.role !== Role.Teacher)
+      throw new NotFoundException('teacher not found');
+
+    this.checkDateRanges(dto.startDate, dto.endDate);
+
     const group = await this.groupModel.create(dto);
     await this.usersService.addGroupToTeacher({
       teacherId: teacher._id,
@@ -39,7 +43,7 @@ export class GroupsService {
   }
 
   async findById(id: string) {
-    if(!Types.ObjectId.isValid(id)) {
+    if (!Types.ObjectId.isValid(id)) {
       throw new BadRequestException('id must be a mongodb object id')
     }
     const group = await this.groupModel.findOne({
@@ -47,7 +51,7 @@ export class GroupsService {
     }).populate('students', {
       _id: 1,
     })
-    if(!group) throw new NotFoundException('Group not found');
+    if (!group) throw new NotFoundException('Group not found');
     return group;
   }
 
@@ -56,8 +60,18 @@ export class GroupsService {
     studentId: Types.ObjectId
   }) {
     const group = await this.groupModel.findOne({_id: data.groupId});
-    if(!group) throw new NotFoundException('Group not found');
+    if (!group) throw new NotFoundException('Group not found');
     group.students.push(data.studentId);
     await group.save();
+  }
+
+  private checkDateRanges(startDate: string, endDate: string) {
+    let date1 = new Date(startDate);
+    console.log(date1, date1.getDay());
+    let date2 = new Date(endDate);
+    console.log(date2.getTime() - date1.getTime());
+
+    let bool = date1.getTime() <= date2.getTime()
+    if(!bool) throw new BadRequestException('startDate should be less than or equal endDate')
   }
 }

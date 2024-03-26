@@ -1,4 +1,5 @@
-import {IsDate, IsMongoId, IsString, Length} from "class-validator";
+import {IsMongoId, IsNotEmpty, IsString, Length} from "class-validator";
+import {IsValidDate} from "../../common/validators/is-valid-date.valitor";
 
 export class CreateGroupDto {
   @IsString()
@@ -9,9 +10,11 @@ export class CreateGroupDto {
   @IsMongoId()
   teacherId: string;
 
-  @IsDate()
-  startDate: Date;
+  @IsValidDate()
+  @IsNotEmpty()
+  startDate: string;
 
-  @IsDate()
-  endDate: Date
+  @IsValidDate()
+  @IsNotEmpty()
+  endDate: string;
 }
