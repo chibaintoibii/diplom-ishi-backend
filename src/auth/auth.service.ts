@@ -16,6 +16,7 @@ export class AuthService {
 
   async validateUser(dto: LoginUserDto): Promise<any> {
     const user = await this.usersService.findByUsername(dto.username);
+
     if (user && (await bcrypt.compare(dto.password, user.password))) {
       delete user.password;
       return user;
@@ -27,24 +28,10 @@ export class AuthService {
   async login(dto: LoginUserDto) {
     const user = await this.validateUser(dto);
     if (!user) throw new UnauthorizedException();
-    return {
-      tokens: await this._generateTokens(user),
-      user: user
-    }
-  }
-
-  private async _generateTokens(user: UserDocument) {
     const payload = {id: user._id, role: user.role, username: user.username}
-    return {
-      access_token: await this.jwtService.signAsync(payload, {
-        secret: this.configService.get<string>("JWT_ACCESS_SECRET_KEY"),
-        expiresIn: '1h'
-      }),
-      refresh_token: await this.jwtService.signAsync(payload, {
-        secret: this.configService.get<string>("JWT_REFRESH_SECRET_KEY"),
-        expiresIn: '7d'
-      })
-    }
+    return await this.jwtService.signAsync(payload, {
+      secret: this.configService.get<string>("JWT_ACCESS_SECRET_KEY"),
+      expiresIn: '1h'
+    })
   }
-
 }

@@ -1,13 +1,12 @@
 import {BadRequestException, Injectable, NotFoundException} from '@nestjs/common';
 import {CreateGroupDto} from './dto/create-group.dto';
-import {UpdateGroupDto} from './dto/update-group.dto';
 import {InjectModel} from "@nestjs/mongoose";
 import {Group, GroupDocument} from "./schemas/group.schema";
-import {Model, Types} from "mongoose";
+import {FilterQuery, Model, Types} from "mongoose";
 import {UsersService} from "../users/users.service";
 import {FilterGroupDto} from "./dto/filter-group.dto";
 import {Role} from "../auth/roles/roles.enum";
-import {IsMongoId} from "class-validator";
+import {GroupStatus} from "./types";
 
 @Injectable()
 export class GroupsService {
@@ -21,8 +20,6 @@ export class GroupsService {
     if (!teacher || teacher?.role !== Role.Teacher)
       throw new NotFoundException('teacher not found');
 
-    this.checkDateRanges(dto.startDate, dto.endDate);
-
     const group = await this.groupModel.create(dto);
     await this.usersService.addGroupToTeacher({
       teacherId: teacher._id,
@@ -31,15 +28,37 @@ export class GroupsService {
     return group;
   }
 
-  async find(filter: FilterGroupDto) {
-    const groups = await this.groupModel.find({
-      name: new RegExp(filter.name, 'i'),
-      teacherId: filter.teacherId ?? undefined
+  async find(dto: FilterGroupDto) {
+    const filter: FilterQuery<GroupDocument> = {status: dto.status,}
+    if (dto.userRole === Role.Teacher) {
+      filter.teacherId = dto.userId
+    }
+    const groups: GroupDocument[] = await this.groupModel.find(filter, {
+      _id: 1, name: 1, countOfStudents: {$size: '$students'}, createdAt: 1
     }).populate({
-      path: 'students',
-      select: {_id: 1, fullName: 1, username: 1}
+      path: 'teacherId', select: {
+        _id: 0, fullName: 1
+      }
+    }).exec()
+    return groups
+      .map(group => {
+        return {
+          _id: group._id.toString(), name: group.name, teacher: group.teacherId,
+          createdAt: group.createdAt,
+        }
+      })
+  }
+
+  async getLabels() {
+    const groups = await this.groupModel.find({
+      status: GroupStatus.ACTIVE
+    }, {_id: 1, name: 1})
+    return groups.map(group => {
+      return {
+        value: group._id,
+        name: group.name
+      }
     })
-    return groups;
   }
 
   async findById(id: string) {
@@ -55,23 +74,14 @@ export class GroupsService {
     return group;
   }
 
-  async addStudent(data: {
-    groupId: Types.ObjectId,
-    studentId: Types.ObjectId
-  }) {
-    const group = await this.groupModel.findOne({_id: data.groupId});
-    if (!group) throw new NotFoundException('Group not found');
-    group.students.push(data.studentId);
-    await group.save();
+  async addStudentToGroup(groupId: string, studentId: string) {
+    return this.groupModel.updateOne({
+      _id: new Types.ObjectId(groupId)
+    }, {
+      $push: {
+        students: new Types.ObjectId(studentId)
+      }
+    })
   }
 
-  private checkDateRanges(startDate: string, endDate: string) {
-    let date1 = new Date(startDate);
-    console.log(date1, date1.getDay());
-    let date2 = new Date(endDate);
-    console.log(date2.getTime() - date1.getTime());
-
-    let bool = date1.getTime() <= date2.getTime()
-    if(!bool) throw new BadRequestException('startDate should be less than or equal endDate')
-  }
 }

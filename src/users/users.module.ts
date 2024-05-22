@@ -7,6 +7,8 @@ import {AuthModule} from "../auth/auth.module";
 import {StudentsController} from "./students.controller";
 import {TeachersController} from "./teachers.controller";
 import {GroupsModule} from "../groups/groups.module";
+import {TeachersService} from "./teachers.service";
+import {StudentsService} from "./students.service";
 
 @Module({
   controllers: [UsersController, StudentsController, TeachersController],
@@ -15,7 +17,7 @@ import {GroupsModule} from "../groups/groups.module";
     forwardRef(() => AuthModule),
     forwardRef(() => GroupsModule)
   ],
-  providers: [UsersService],
+  providers: [UsersService, TeachersService, StudentsService],
   exports: [UsersService]
 })
 export class UsersModule {

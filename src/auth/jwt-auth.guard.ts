@@ -16,6 +16,7 @@ export class JwtAuthGuard implements CanActivate {
     const token = this.extractTokenFromHeader(request);
 
     if (!token) {
+      console.log('token yoq')
       throw new UnauthorizedException();
     }
 
@@ -24,6 +25,8 @@ export class JwtAuthGuard implements CanActivate {
         secret: this.configService.get<string>("JWT_ACCESS_SECRET_KEY")
       });
     } catch (err) {
+      console.log('token decode qilomadi')
+
       throw new UnauthorizedException()
     }
     return true;

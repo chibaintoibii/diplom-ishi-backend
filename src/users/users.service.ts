@@ -63,7 +63,8 @@ export class UsersService {
       _id: 1,
       fullName: 1,
       username: 1,
-      groupId: 1
+      groupId: 1,
+      phoneNumber: 1
     })
       .skip((filter.page - 1) * limit)
       .limit(limit)
@@ -77,11 +78,16 @@ export class UsersService {
   }
 
   async getUserDetails(id: string, role: Role) {
-    const user = await this.user.findOne({
+    const user: UserDocument | null = await this.user.findOne({
       _id: new Types.ObjectId(id),
       role: role
     })
 
-    return user;
+    return {
+      _id: user._id,
+      role: user.role,
+      username: user.username,
+      fullName: user.fullName
+    };
   }
 }

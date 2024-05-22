@@ -18,7 +18,6 @@ export class RegisterStudentDto {
   @Length(7, 20) //+998914431921
   phoneNumber: string;
 
-  @IsMongoId()
   @IsString()
   groupId: string;
 }

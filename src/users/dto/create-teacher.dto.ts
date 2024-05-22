@@ -15,10 +15,6 @@ export class CreateTeacherDto {
   fullName: string;
 
   @IsString()
-  @Length(7, 20) //+998914431921
+  @Length(13, 13) //+998914431921
   phoneNumber: string;
-
-  @IsString()
-  @IsOptional()
-  groupId?: string;
 }

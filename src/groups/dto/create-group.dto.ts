@@ -10,11 +10,4 @@ export class CreateGroupDto {
   @IsMongoId()
   teacherId: string;
 
-  @IsValidDate()
-  @IsNotEmpty()
-  startDate: string;
-
-  @IsValidDate()
-  @IsNotEmpty()
-  endDate: string;
 }

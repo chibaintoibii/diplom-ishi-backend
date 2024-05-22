@@ -3,6 +3,7 @@ import {User} from "../../users/schemas/user.schema";
 import {Types, Document} from "mongoose";
 import {ReportStatus} from "../../common/enums/report-status.enum";
 
+
 export type ReportDocument = Report & Document;
 
 @Schema({
@@ -21,8 +22,6 @@ export class Report {
   @Prop({
     type: String,
     maxlength: 5000,
-    minlength: 3,
-    required: true,
   })
   content: string;
 
@@ -51,6 +50,24 @@ export class Report {
     default: 1
   })
   state: number;
+
+  @Prop({
+    type: Types.ObjectId, ref: 'User',
+    required: true
+  })
+  createdBy: Types.ObjectId
+
+  @Prop({
+    type: String,
+    required: true
+  })
+  deadline: string;
+
+  @Prop({
+    type: String,
+    default: ''
+  })
+  reasonReject: string
 }
 
 export const ReportSchema = SchemaFactory.createForClass(Report);
